@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -15,7 +16,7 @@ func main() {
 
 	s := string(b)
 	lines := strings.Split(s, "\n")
-	var largestID int
+	var largestID, alsoLargest int
 	seats := make([]bool, 100)
 
 	for _, l := range lines {
@@ -29,6 +30,11 @@ func main() {
 			largestID = id
 		}
 
+		binID := binaryLocate(l)
+		if binID > alsoLargest {
+			alsoLargest = binID
+		}
+
 		if len(seats) < id {
 			t := make([]bool, id*2)
 			copy(t, seats)
@@ -37,7 +43,7 @@ func main() {
 		seats[id] = true
 	}
 
-	fmt.Printf("largest ID is %d\n", largestID)
+	fmt.Printf("largest ID is %d or %d\n", largestID, alsoLargest)
 
 	beginning := true
 	for id, taken := range seats {
@@ -77,4 +83,24 @@ func divide(e string, s space, front, back rune) int {
 		}
 	}
 	return s.from
+}
+
+/*
+Second solution
+*/
+
+func binaryLocate(s string) int {
+	row := parseAsBinary(s[:7], "F", "B")
+	col := parseAsBinary(s[7:], "L", "R")
+	return row*8 + col
+}
+
+func parseAsBinary(a, low, high string) int {
+	a = strings.ReplaceAll(a, low, "0")
+	a = strings.ReplaceAll(a, high, "1")
+	n, err := strconv.ParseInt(a, 2, 64)
+	if err != nil {
+		panic(err)
+	}
+	return int(n)
 }
